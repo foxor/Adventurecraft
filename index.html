@@ -133,9 +133,6 @@ body, html {
         g.u_modelViewProjMatrixLoc =
                 gl.getUniformLocation(program, "u_modelViewProjMatrix");
         g.mvpMatrix = new J3DIMatrix4();
-        g.camera = new J3DIVector3(0, 0, 7);
-        g.center = new J3DIVector3(0, 0, 0);
-        g.up = new J3DIVector3(0, 1, 0);
 
         // Enable all of the vertex attribute arrays.
         gl.enableVertexAttribArray(0);
@@ -176,9 +173,10 @@ body, html {
     {
         //popMatrix();
         //g.perspectiveMatrix.translate(g.position[0], g.position[1], g.position[2]);
-        g.rotation = new J3DIMatrix4();
-        g.rotation.rotate(g.totalRotation[1], 1,0,0);
-        g.rotation.rotate(g.totalRotation[0], 0,1,0);
+        g.camera = new J3DIMatrix4();
+        g.camera.rotate(g.totalRotation[1], 1,0,0);
+        g.camera.rotate(g.totalRotation[0], 0,1,0);
+        g.camera.translate(g.position);
         //pushMatrix();
     }
 
@@ -247,17 +245,13 @@ body, html {
         g.matrixStack = [];
         g.perspectiveMatrix = new J3DIMatrix4();
         g.perspectiveMatrix.perspective(30, canvas.clientWidth / canvas.clientHeight, 1, 10000);
-        g.perspectiveMatrix.lookat(g.camera[0], g.camera[1], g.camera[2],
-            g.center[0], g.center[1], g.center[2],
-            g.up[0], g.up[1], g.up[2]);
-        pushMatrix();
-        pushMatrix();
+        g.perspectiveMatrix.lookat(0,0,7, 0,0,0, 0,1,0);
         g.totalRotation = [0, 0];
         g.position = [0, 0, 0];
-        g.rotation = new J3DIMatrix4();
+        g.camera = new J3DIMatrix4();
     }
 
-    function drawPicture(gl)
+    function drawPicture(gl, boxes)
     {
         // Make sure the canvas is sized correctly.
         reshape(gl);
@@ -265,13 +259,10 @@ body, html {
         // Clear the canvas
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        for (var i = 0; i < 100; i++) {
+        for (var i = 0; i < boxes.length; i++) {
             // Make a model/view matrix.
-            g.mvMatrix.makeIdentity();
-            g.mvMatrix.multiply(g.rotation);
-            g.mvMatrix.translate(g.position[0]-10, g.position[1]-10, g.position[2]-3*i);
-            g.mvMatrix.rotate(20, 1,0,0);
-            g.mvMatrix.rotate(currentAngle, 0,1,0);
+            g.mvMatrix.load(g.camera);
+            g.mvMatrix.translate(boxes[i]);
     
             // Construct the normal matrix from the model-view matrix and pass it in
             g.normalMatrix.load(g.mvMatrix);
@@ -293,10 +284,17 @@ body, html {
 
         // Show the framerate
         framerate.snapshot();
+    }
 
-        currentAngle += incAngle;
-        if (currentAngle > 360)
-            currentAngle -= 360;
+    function setupBoxes()
+    {
+        var boxes = [];
+        for (var x = 0; x < 10; x++) {
+            for (var y = 0; y < 10; y++) {
+                boxes.push([-10 + 2 * x, -10 + 2 * y,-50]);
+            }
+        }
+        return boxes;
     }
 
     function start()
@@ -315,11 +313,11 @@ body, html {
            return;
         }
 
-        currentAngle = 0;
-        incAngle = 0.5;
+        var boxes = setupBoxes();
+
         framerate = new Framerate("framerate");
         var f = function() {
-            drawPicture(gl);
+            drawPicture(gl, boxes);
             requestId = window.requestAnimFrame(f, c);
         };
         f();
