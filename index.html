@@ -212,11 +212,30 @@ body, html {
     function onKeyDown(e)
     {
         var radians = [g.totalRotation[0] / 180 * Math.PI, g.totalRotation[1] / 180 * Math.PI];
-        var dy = Math.sin(radians[1]);
-        var xzLen = Math.sqrt(1 - dy * dy);
-        g.position[0] -= Math.sin(radians[0]) * xzLen;
-        g.position[1] += Math.sin(radians[1]);
-        g.position[2] += Math.cos(radians[0]) * xzLen;
+        switch (e.keyCode) {
+            case 87: // W
+                var dy = Math.sin(radians[1]);
+                var xzLen = Math.sqrt(1 - dy * dy);
+                g.position[0] -= Math.sin(radians[0]) * xzLen;
+                g.position[1] += Math.sin(radians[1]);
+                g.position[2] += Math.cos(radians[0]) * xzLen;
+                break;
+            case 65: // A
+                g.position[0] += Math.cos(radians[0]);
+                g.position[2] += Math.sin(radians[0]);
+                break;
+            case 83: // S
+                var dy = Math.sin(radians[1]);
+                var xzLen = Math.sqrt(1 - dy * dy);
+                g.position[0] += Math.sin(radians[0]) * xzLen;
+                g.position[1] -= Math.sin(radians[1]);
+                g.position[2] -= Math.cos(radians[0]) * xzLen;
+                break;
+            case 68: // D
+                g.position[0] -= Math.cos(radians[0]);
+                g.position[2] -= Math.sin(radians[0]);
+                break;
+        }
         rotateTranslate();
     }
 
