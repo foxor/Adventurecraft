@@ -192,7 +192,7 @@ body, html {
             g.totalRotation[0] += dx;
             g.totalRotation[1] += dy;
             g.totalRotation[1] = Math.min(Math.max(g.totalRotation[1], -90), 90);
-            rotateTranslate();
+            //rotateTranslate();
         }
         g.oldMousePos = newMousePos;
     }
@@ -236,7 +236,7 @@ body, html {
                 g.position[2] -= Math.sin(radians[0]);
                 break;
         }
-        rotateTranslate();
+        //rotateTranslate();
     }
 
     function onKeyUp(e)
@@ -270,10 +270,21 @@ body, html {
         g.camera = new J3DIMatrix4();
     }
 
+    function update(boxes)
+    {
+        g.position[1] += .01;
+    }
+
     function drawPicture(gl, boxes)
     {
         // Make sure the canvas is sized correctly.
         reshape(gl);
+
+        // Update gameobjects
+        update(boxes);
+
+        // Setup g.camera
+        rotateTranslate();
 
         // Clear the canvas
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
