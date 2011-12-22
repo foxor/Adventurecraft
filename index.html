@@ -237,7 +237,7 @@ body, html {
                 break;
             case 32: // Space
                 g.position[1] = -1;
-                g.velocity[1] = -1;
+                g.velocity[1] = -7;
                 break;
         }
         //rotateTranslate();
@@ -277,15 +277,15 @@ body, html {
 
     function update(boxes)
     {
+        g.position[0] += g.velocity[0];
+        g.position[1] += g.velocity[1];
+        g.position[2] += g.velocity[2];
         if (g.position[1] < 0) {
-            g.velocity[1] += .01;
+            g.velocity[1] += .03;
         } else {
             g.velocity[1] = 0;
             g.position[1] = 0;
         }
-        g.position[0] += g.velocity[0];
-        g.position[1] += g.velocity[1];
-        g.position[2] += g.velocity[2];
     }
 
     function drawPicture(gl, boxes)
