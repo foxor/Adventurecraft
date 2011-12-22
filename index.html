@@ -161,18 +161,6 @@ body, html {
 
     var requestId;
 
-    function pushMatrix()
-    {
-        g.matrixStack.push(g.perspectiveMatrix);
-        g.perspectiveMatrix = new J3DIMatrix4(g.perspectiveMatrix);
-    }
-
-    function popMatrix()
-    {
-        g.matrixStack.pop();
-        g.perspectiveMatrix = new J3DIMatrix4(g.matrixStack[g.matrixStack.length - 1]);
-    }
-
     function rotateTranslate()
     {
         //popMatrix();
