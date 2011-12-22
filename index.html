@@ -118,10 +118,14 @@ body, html {
         gl.uniform3f(gl.getUniformLocation(program, "lightDir"), 0, 0, 1);
         gl.uniform1i(gl.getUniformLocation(program, "sampler2d"), 0);
 
+        // Create shapes object, which will hold all our shapes and their references
+        // to gl buffers.
+        g.shapes = {};
+
         // Create a box. On return 'gl' contains a 'box' property with
         // the BufferObjects containing the arrays for vertices,
         // normals, texture coords, and indices.
-        g.box = makeBox(gl);
+        g.shapes['box'] = makeBox(gl);
 
         // Load an image to use. Returns a WebGLTexture object
         spiritTexture = loadImageTexture(gl, "resources/spirit.jpg");
@@ -140,17 +144,17 @@ body, html {
         gl.enableVertexAttribArray(2);
 
         // Set up all the vertex attributes for vertices, normals and texCoords
-        gl.bindBuffer(gl.ARRAY_BUFFER, g.box.vertexObject);
+        gl.bindBuffer(gl.ARRAY_BUFFER, g.shapes['box'].vertexObject);
         gl.vertexAttribPointer(2, 3, gl.FLOAT, false, 0, 0);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, g.box.normalObject);
+        gl.bindBuffer(gl.ARRAY_BUFFER, g.shapes['box'].normalObject);
         gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, g.box.texCoordObject);
+        gl.bindBuffer(gl.ARRAY_BUFFER, g.shapes['box'].texCoordObject);
         gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 0, 0);
 
         // Bind the index array
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, g.box.indexObject);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, g.shapes['box'].indexObject);
 
         return gl;
     }
@@ -308,7 +312,7 @@ body, html {
             gl.bindTexture(gl.TEXTURE_2D, spiritTexture);
     
             // Draw the cube
-            gl.drawElements(gl.TRIANGLES, g.box.numIndices, gl.UNSIGNED_BYTE, 0);
+            gl.drawElements(gl.TRIANGLES, g.shapes['box'].numIndices, gl.UNSIGNED_BYTE, 0);
         }
 
         // Show the framerate
