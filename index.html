@@ -269,17 +269,17 @@ body, html {
         g.camera = new J3DIMatrix4();
     }
 
-    function update(boxes)
+    function update(objects)
     {
     }
 
-    function drawPicture(gl, boxes)
+    function drawPicture(gl, objects)
     {
         // Make sure the canvas is sized correctly.
         reshape(gl);
 
         // Update gameobjects
-        update(boxes);
+        update(objects);
 
         // Setup g.camera
         rotateTranslate();
@@ -287,10 +287,10 @@ body, html {
         // Clear the canvas
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        for (var i = 0; i < boxes.length; i++) {
+        for (var i = 0; i < objects.length; i++) {
             // Make a model/view matrix.
             g.mvMatrix.load(g.camera);
-            g.mvMatrix.translate(boxes[i].position);
+            g.mvMatrix.translate(objects[i].position);
     
             // Construct the normal matrix from the model-view matrix and pass it in
             g.normalMatrix.load(g.mvMatrix);
@@ -314,14 +314,14 @@ body, html {
         framerate.snapshot();
     }
 
-    function setupBoxes()
+    function loadContent()
     {
         var width = 10;
         var height = 10;
         var depth = 10;
-        var boxes = [];
+        var objects = [];
         function getBox(x, y, z) {
-            return boxes[x * width * height + y * height + z];
+            return objects[x * width * height + y * height + z];
         }
         for (var x = 0; x < width; x++) {
             for (var y = 0; y < height; y++) {
@@ -341,11 +341,11 @@ body, html {
                         curBox.near = getBox(x,y,z-1);
                         curBox.near.far = curBox;
                     }
-                    boxes.push(curBox);
+                    objects.push(curBox);
                 }
             }
         }
-        return boxes;
+        return objects;
     }
 
     function start()
@@ -364,11 +364,11 @@ body, html {
            return;
         }
 
-        var boxes = setupBoxes();
+        var objects = loadContent();
 
         framerate = new Framerate("framerate");
         var f = function() {
-            drawPicture(gl, boxes);
+            drawPicture(gl, objects);
             requestId = window.requestAnimFrame(f, c);
         };
         f();
