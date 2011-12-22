@@ -291,6 +291,7 @@ body, html {
             // Make a model/view matrix.
             g.mvMatrix.load(g.camera);
             g.mvMatrix.translate(objects[i].position);
+            g.mvMatrix.scale(objects[i].radius);
     
             // Construct the normal matrix from the model-view matrix and pass it in
             g.normalMatrix.load(g.mvMatrix);
@@ -316,35 +317,9 @@ body, html {
 
     function loadContent()
     {
-        var width = 10;
-        var height = 10;
-        var depth = 10;
         var objects = [];
-        function getBox(x, y, z) {
-            return objects[x * width * height + y * height + z];
-        }
-        for (var x = 0; x < width; x++) {
-            for (var y = 0; y < height; y++) {
-                for (var z = 0; z < depth; z++) {
-                    var curBox = {
-                        position: [-10 + 2 * x, -10 + 2 * y, -50 + 2 * z]
-                    };
-                    if (x) {
-                        curBox.left = getBox(x-1,y,z);
-                        curBox.left.right = curBox;
-                    }
-                    if (y) {
-                        curBox.bottom = getBox(x,y-1,z);
-                        curBox.bottom.top = curBox;
-                    }
-                    if (z) {
-                        curBox.near = getBox(x,y,z-1);
-                        curBox.near.far = curBox;
-                    }
-                    objects.push(curBox);
-                }
-            }
-        }
+        objects.push({position: [0,0,0], radius: 3});
+        objects.push({position: [5,0,0], radius: 1});
         return objects;
     }
 
