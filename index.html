@@ -138,24 +138,6 @@ body, html {
                 gl.getUniformLocation(program, "u_modelViewProjMatrix");
         g.mvpMatrix = new J3DIMatrix4();
 
-        // Enable all of the vertex attribute arrays.
-        gl.enableVertexAttribArray(0);
-        gl.enableVertexAttribArray(1);
-        gl.enableVertexAttribArray(2);
-
-        // Set up all the vertex attributes for vertices, normals and texCoords
-        gl.bindBuffer(gl.ARRAY_BUFFER, g.shapes['box'].vertexObject);
-        gl.vertexAttribPointer(2, 3, gl.FLOAT, false, 0, 0);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, g.shapes['box'].normalObject);
-        gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, g.shapes['box'].texCoordObject);
-        gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 0, 0);
-
-        // Bind the index array
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, g.shapes['box'].indexObject);
-
         return gl;
     }
 
@@ -280,6 +262,26 @@ body, html {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         for (var i = 0; i < objects.length; i++) {
+            var myShape = g.shapes[objects[i].shape];
+
+            // Enable all of the vertex attribute arrays.
+            gl.enableVertexAttribArray(0);
+            gl.enableVertexAttribArray(1);
+            gl.enableVertexAttribArray(2);
+    
+            // Set up all the vertex attributes for vertices, normals and texCoords
+            gl.bindBuffer(gl.ARRAY_BUFFER, myShape.vertexObject);
+            gl.vertexAttribPointer(2, 3, gl.FLOAT, false, 0, 0);
+    
+            gl.bindBuffer(gl.ARRAY_BUFFER, myShape.normalObject);
+            gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+    
+            gl.bindBuffer(gl.ARRAY_BUFFER, myShape.texCoordObject);
+            gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 0, 0);
+    
+            // Bind the index array
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, myShape.indexObject);
+
             // Make a model/view matrix.
             g.mvMatrix.load(g.camera);
             g.mvMatrix.translate(objects[i].position);
@@ -310,8 +312,8 @@ body, html {
     function loadContent()
     {
         var objects = [];
-        objects.push({position: [0,0,0], radius: 3});
-        objects.push({position: [5,0,0], radius: 1});
+        objects.push({position: [0,0,0], radius: 3, shape: 'box'});
+        objects.push({position: [5,0,0], radius: 1, shape: 'box'});
         return objects;
     }
 
