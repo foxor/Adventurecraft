@@ -127,10 +127,12 @@ body, html {
         // normals, texture coords, and indices.
         g.shapes['box'] = makeBox(gl);
         g.shapes['box'].dataType = gl.UNSIGNED_BYTE;
+        g.shapes['box'].cullFace = gl.BACK;
 
         // Create a sphere too
         g.shapes['sphere'] = makeSphere(gl, 1, 20, 20);
         g.shapes['sphere'].dataType = gl.UNSIGNED_SHORT;
+        g.shapes['sphere'].cullFace = gl.FRONT;
 
         // Load an image to use. Returns a WebGLTexture object
         spiritTexture = loadImageTexture(gl, "resources/spirit.jpg");
@@ -142,6 +144,8 @@ body, html {
         g.u_modelViewProjMatrixLoc =
                 gl.getUniformLocation(program, "u_modelViewProjMatrix");
         g.mvpMatrix = new J3DIMatrix4();
+
+        gl.enable(gl.CULL_FACE);
 
         return gl;
     }
@@ -305,6 +309,9 @@ body, html {
     
             // Bind the texture to use
             gl.bindTexture(gl.TEXTURE_2D, spiritTexture);
+            
+            // Enable culling as specified by model
+            gl.cullFace(myShape.cullFace);
     
             // Draw the cube
             gl.drawElements(gl.TRIANGLES, myShape.numIndices, myShape.dataType, 0);
