@@ -126,10 +126,11 @@ body, html {
         // the BufferObjects containing the arrays for vertices,
         // normals, texture coords, and indices.
         g.shapes['box'] = makeBox(gl);
+        g.shapes['box'].dataType = gl.UNSIGNED_BYTE;
 
         // Create a sphere too
         g.shapes['sphere'] = makeSphere(gl, 1, 20, 20);
-        g.sphere = g.shapes['sphere']
+        g.shapes['sphere'].dataType = gl.UNSIGNED_SHORT;
 
         // Load an image to use. Returns a WebGLTexture object
         spiritTexture = loadImageTexture(gl, "resources/spirit.jpg");
@@ -306,15 +307,14 @@ body, html {
             gl.bindTexture(gl.TEXTURE_2D, spiritTexture);
     
             // Draw the cube
-            gl.drawElements(gl.TRIANGLES, myShape.numIndices, gl.UNSIGNED_SHORT, 0); //for sphere
-            //gl.drawElements(gl.TRIANGLES, myShape.numIndices, gl.UNSIGNED_BYTE, 0); //for box
+            gl.drawElements(gl.TRIANGLES, myShape.numIndices, myShape.dataType, 0);
         }
 
         // Show the framerate
         framerate.snapshot();
     }
 
-    function loadContent()
+    function loadContent(gl)
     {
         var objects = [];
         objects.push({position: [0,0,0], radius: 3, shape: 'sphere'});
@@ -338,7 +338,7 @@ body, html {
            return;
         }
 
-        var objects = loadContent();
+        var objects = loadContent(gl);
 
         framerate = new Framerate("framerate");
         var f = function() {
