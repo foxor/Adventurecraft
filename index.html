@@ -294,14 +294,16 @@ body, html {
             // Make a model/view matrix.
             g.mvMatrix.load(g.camera);
             g.mvMatrix.translate(objects[i].position);
-            g.mvMatrix.scale(objects[i].radius);
     
             // Construct the normal matrix from the model-view matrix and pass it in
             g.normalMatrix.load(g.mvMatrix);
             g.normalMatrix.invert();
             g.normalMatrix.transpose();
             g.normalMatrix.setUniform(gl, g.u_normalMatrixLoc, false);
-    
+   
+            // Scale the object after lighting is done to keep those normal
+            g.mvMatrix.scale(objects[i].radius);
+
             // Construct the model-view * projection matrix and pass it in
             g.mvpMatrix.load(g.perspectiveMatrix);
             g.mvpMatrix.multiply(g.mvMatrix);
