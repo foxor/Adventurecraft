@@ -252,8 +252,58 @@ body, html {
         g.camera = new J3DIMatrix4();
     }
 
-    function update(objects)
+    function update(gameObject)
     {
+    }
+
+    function draw(gl, gameObject)
+    {
+        var myShape = g.shapes[gameObject.shape];
+
+        // Enable all of the vertex attribute arrays.
+        gl.enableVertexAttribArray(0);
+        gl.enableVertexAttribArray(1);
+        gl.enableVertexAttribArray(2);
+
+        // Set up all the vertex attributes for vertices, normals and texCoords
+        gl.bindBuffer(gl.ARRAY_BUFFER, myShape.vertexObject);
+        gl.vertexAttribPointer(2, 3, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, myShape.normalObject);
+        gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, myShape.texCoordObject);
+        gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 0, 0);
+
+        // Bind the index array
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, myShape.indexObject);
+
+        // Make a model/view matrix.
+        g.mvMatrix.load(g.camera);
+        g.mvMatrix.translate(gameObject.position);
+
+        // Construct the normal matrix from the model-view matrix and pass it in
+        g.normalMatrix.load(g.mvMatrix);
+        g.normalMatrix.invert();
+        g.normalMatrix.transpose();
+        g.normalMatrix.setUniform(gl, g.u_normalMatrixLoc, false);
+   
+        // Scale the object after lighting is done to keep those normal
+        g.mvMatrix.scale(gameObject.radius);
+
+        // Construct the model-view * projection matrix and pass it in
+        g.mvpMatrix.load(g.perspectiveMatrix);
+        g.mvpMatrix.multiply(g.mvMatrix);
+        g.mvpMatrix.setUniform(gl, g.u_modelViewProjMatrixLoc, false);
+
+        // Bind the texture to use
+        gl.bindTexture(gl.TEXTURE_2D, spiritTexture);
+        
+        // Enable culling as specified by model
+        gl.cullFace(myShape.cullFace);
+
+        // Draw the cube
+        gl.drawElements(gl.TRIANGLES, myShape.numIndices, myShape.dataType, 0);
     }
 
     function drawPicture(gl, objects)
@@ -262,7 +312,9 @@ body, html {
         reshape(gl);
 
         // Update gameobjects
-        update(objects);
+        for (var i = 0; i < objects.length; i++) {
+            update(objects[i]);
+        }
 
         // Setup g.camera
         rotateTranslate();
@@ -271,52 +323,7 @@ body, html {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         for (var i = 0; i < objects.length; i++) {
-            var myShape = g.shapes[objects[i].shape];
-
-            // Enable all of the vertex attribute arrays.
-            gl.enableVertexAttribArray(0);
-            gl.enableVertexAttribArray(1);
-            gl.enableVertexAttribArray(2);
-    
-            // Set up all the vertex attributes for vertices, normals and texCoords
-            gl.bindBuffer(gl.ARRAY_BUFFER, myShape.vertexObject);
-            gl.vertexAttribPointer(2, 3, gl.FLOAT, false, 0, 0);
-    
-            gl.bindBuffer(gl.ARRAY_BUFFER, myShape.normalObject);
-            gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
-    
-            gl.bindBuffer(gl.ARRAY_BUFFER, myShape.texCoordObject);
-            gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 0, 0);
-    
-            // Bind the index array
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, myShape.indexObject);
-
-            // Make a model/view matrix.
-            g.mvMatrix.load(g.camera);
-            g.mvMatrix.translate(objects[i].position);
-    
-            // Construct the normal matrix from the model-view matrix and pass it in
-            g.normalMatrix.load(g.mvMatrix);
-            g.normalMatrix.invert();
-            g.normalMatrix.transpose();
-            g.normalMatrix.setUniform(gl, g.u_normalMatrixLoc, false);
-   
-            // Scale the object after lighting is done to keep those normal
-            g.mvMatrix.scale(objects[i].radius);
-
-            // Construct the model-view * projection matrix and pass it in
-            g.mvpMatrix.load(g.perspectiveMatrix);
-            g.mvpMatrix.multiply(g.mvMatrix);
-            g.mvpMatrix.setUniform(gl, g.u_modelViewProjMatrixLoc, false);
-    
-            // Bind the texture to use
-            gl.bindTexture(gl.TEXTURE_2D, spiritTexture);
-            
-            // Enable culling as specified by model
-            gl.cullFace(myShape.cullFace);
-    
-            // Draw the cube
-            gl.drawElements(gl.TRIANGLES, myShape.numIndices, myShape.dataType, 0);
+            draw(gl, objects[i]);
         }
 
         // Show the framerate
