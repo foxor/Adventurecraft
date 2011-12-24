@@ -138,12 +138,9 @@ body, html {
         spiritTexture = loadImageTexture(gl, "resources/spirit.jpg");
 
         // Create some matrices to use later and save their locations in the shaders
-        g.mvMatrix = new J3DIMatrix4();
         g.u_normalMatrixLoc = gl.getUniformLocation(program, "u_normalMatrix");
-        g.normalMatrix = new J3DIMatrix4();
         g.u_modelViewProjMatrixLoc =
                 gl.getUniformLocation(program, "u_modelViewProjMatrix");
-        g.mvpMatrix = new J3DIMatrix4();
 
         gl.enable(gl.CULL_FACE);
 
@@ -256,27 +253,27 @@ body, html {
     {
     }
 
-    function draw(gl, gameObject, mv)
+    function draw(gl, gameObject, parentMvMatrix)
     {
         var myShape = g.shapes[gameObject.shape];
 
         // Make a model/view matrix.
-        g.mvMatrix.load(mv);
-        g.mvMatrix.translate(gameObject.position);
+        var mvMatrix = new J3DIMatrix4(parentMvMatrix);
+        mvMatrix.translate(gameObject.position);
 
         // Construct the normal matrix from the model-view matrix and pass it in
-        g.normalMatrix.load(g.mvMatrix);
-        g.normalMatrix.invert();
-        g.normalMatrix.transpose();
-        g.normalMatrix.setUniform(gl, g.u_normalMatrixLoc, false);
+        var normalMatrix = new J3DIMatrix4(mvMatrix);
+        normalMatrix.invert();
+        normalMatrix.transpose();
+        normalMatrix.setUniform(gl, g.u_normalMatrixLoc, false);
    
         // Scale the object after lighting is done to keep those normal
-        g.mvMatrix.scale(gameObject.radius);
+        mvMatrix.scale(gameObject.radius);
 
         // Construct the model-view * projection matrix and pass it in
-        g.mvpMatrix.load(g.perspectiveMatrix);
-        g.mvpMatrix.multiply(g.mvMatrix);
-        g.mvpMatrix.setUniform(gl, g.u_modelViewProjMatrixLoc, false);
+        var mvpMatrix = new J3DIMatrix4(g.perspectiveMatrix);
+        mvpMatrix.multiply(mvMatrix);
+        mvpMatrix.setUniform(gl, g.u_modelViewProjMatrixLoc, false);
 
         // Enable all of the vertex attribute arrays.
         gl.enableVertexAttribArray(0);
