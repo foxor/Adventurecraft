@@ -260,24 +260,6 @@ body, html {
     {
         var myShape = g.shapes[gameObject.shape];
 
-        // Enable all of the vertex attribute arrays.
-        gl.enableVertexAttribArray(0);
-        gl.enableVertexAttribArray(1);
-        gl.enableVertexAttribArray(2);
-
-        // Set up all the vertex attributes for vertices, normals and texCoords
-        gl.bindBuffer(gl.ARRAY_BUFFER, myShape.vertexObject);
-        gl.vertexAttribPointer(2, 3, gl.FLOAT, false, 0, 0);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, myShape.normalObject);
-        gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, myShape.texCoordObject);
-        gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 0, 0);
-
-        // Bind the index array
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, myShape.indexObject);
-
         // Make a model/view matrix.
         g.mvMatrix.load(g.camera);
         g.mvMatrix.translate(gameObject.position);
@@ -295,6 +277,24 @@ body, html {
         g.mvpMatrix.load(g.perspectiveMatrix);
         g.mvpMatrix.multiply(g.mvMatrix);
         g.mvpMatrix.setUniform(gl, g.u_modelViewProjMatrixLoc, false);
+
+        // Enable all of the vertex attribute arrays.
+        gl.enableVertexAttribArray(0);
+        gl.enableVertexAttribArray(1);
+        gl.enableVertexAttribArray(2);
+
+        // Set up all the vertex attributes for vertices, normals and texCoords
+        gl.bindBuffer(gl.ARRAY_BUFFER, myShape.vertexObject);
+        gl.vertexAttribPointer(2, 3, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, myShape.normalObject);
+        gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, myShape.texCoordObject);
+        gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 0, 0);
+
+        // Bind the index array
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, myShape.indexObject);
 
         // Bind the texture to use
         gl.bindTexture(gl.TEXTURE_2D, spiritTexture);
