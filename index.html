@@ -256,12 +256,12 @@ body, html {
     {
     }
 
-    function draw(gl, gameObject)
+    function draw(gl, gameObject, mv)
     {
         var myShape = g.shapes[gameObject.shape];
 
         // Make a model/view matrix.
-        g.mvMatrix.load(g.camera);
+        g.mvMatrix.load(mv);
         g.mvMatrix.translate(gameObject.position);
 
         // Construct the normal matrix from the model-view matrix and pass it in
@@ -323,7 +323,7 @@ body, html {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         for (var i = 0; i < objects.length; i++) {
-            draw(gl, objects[i]);
+            draw(gl, objects[i], g.camera);
         }
 
         // Show the framerate
