@@ -151,13 +151,10 @@ body, html {
 
     function rotateTranslate()
     {
-        //popMatrix();
-        //g.perspectiveMatrix.translate(g.position[0], g.position[1], g.position[2]);
         g.camera = new J3DIMatrix4();
         g.camera.rotate(g.totalRotation[1], 1,0,0);
         g.camera.rotate(g.totalRotation[0], 0,1,0);
         g.camera.translate(g.position);
-        //pushMatrix();
     }
 
     function onMouseMove(e)
@@ -172,7 +169,6 @@ body, html {
             g.totalRotation[0] += dx;
             g.totalRotation[1] += dy;
             g.totalRotation[1] = Math.min(Math.max(g.totalRotation[1], -90), 90);
-            //rotateTranslate();
         }
         g.oldMousePos = newMousePos;
     }
