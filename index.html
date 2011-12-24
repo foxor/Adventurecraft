@@ -258,14 +258,22 @@ body, html {
 
         // Make a model/view matrix.
         var mvMatrix = new J3DIMatrix4(parentMvMatrix);
+        mvMatrix.rotate(gameObject.preRotation[0], 1,0,0);
+        mvMatrix.rotate(gameObject.preRotation[1], 0,1,0);
+        mvMatrix.rotate(gameObject.preRotation[2], 0,0,1);
         mvMatrix.translate(gameObject.position);
-        mvMatrix.rotate(gameObject.rotation[0], 1,0,0);
-        mvMatrix.rotate(gameObject.rotation[1], 0,1,0);
-        mvMatrix.rotate(gameObject.rotation[2], 0,0,1);
+        mvMatrix.rotate(-gameObject.preRotation[0], 1,0,0);
+        mvMatrix.rotate(-gameObject.preRotation[1], 0,1,0);
+        mvMatrix.rotate(-gameObject.preRotation[2], 0,0,1);
 
         for (var i = 0; i < gameObject.children.length; i++) {
             draw(gl, gameObject.children[i], mvMatrix);
         }
+
+        // Do our own axis rotation
+        mvMatrix.rotate(gameObject.postRotation[0], 1,0,0);
+        mvMatrix.rotate(gameObject.postRotation[1], 0,1,0);
+        mvMatrix.rotate(gameObject.postRotation[2], 0,0,1);
 
         // Construct the normal matrix from the model-view matrix and pass it in
         var normalMatrix = new J3DIMatrix4(mvMatrix);
@@ -338,8 +346,8 @@ body, html {
         var objects = [];
         objects.push(
         {
-            position: [0,0,0], rotation: [0, 0, 180], radius: 3, shape: 'sphere', children: [
-                {position: [5,0,0], rotation: [20, 20, 20], radius: 1, shape: 'box', children: []}
+            position: [0,0,0], preRotation: [0, 0, 180], postRotation: [0,0,0], radius: 3, shape: 'sphere', children: [
+                {position: [5,0,0], preRotation: [20, 20, 20], postRotation: [0,0,0], radius: 1, shape: 'box', children: []}
             ]
         });
         return objects;
