@@ -291,7 +291,7 @@ body, html {
         normalMatrix.setUniform(gl, g.u_normalMatrixLoc, false);
    
         // Scale the object after lighting is done to keep those normal
-        mvMatrix.scale(gameObject.radius);
+        mvMatrix.scale(gameObject.radius[0], gameObject.radius[1], gameObject.radius[2]);
 
         // Construct the model-view * projection matrix and pass it in
         var mvpMatrix = new J3DIMatrix4(g.perspectiveMatrix);
@@ -359,7 +359,7 @@ body, html {
             preRotationVelocity: 'preRotationVelocity' in args ? args.preRotationVelocity : [0,0,0],
             postRotation: 'postRotation' in args ? args.postRotation : [0,0,0],
             postRotationVelocity: 'postRotationVelocity' in args ? args.postRotationVelocity : [0,0,0],
-            radius: 'radius' in args ? args.radius : 1,
+            radius: 'radius' in args ? args.radius : [1,1,1],
             shape: 'shape' in args ? args.shape : 'sphere',
             children: 'children' in args ? args.children : []
         };
@@ -368,7 +368,7 @@ body, html {
     function loadContent(gl)
     {
         return [createObject({
-            postRotationVelocity: [0,0,1], radius: 3, children: [
+            postRotationVelocity: [0,0,1], radius: [3,1,1], children: [
                 createObject({
                     translation: [5,0,0], preRotationVelocity: [0,0,2], postRotationVelocity: [3,5,7], shape: 'box'
                 })
