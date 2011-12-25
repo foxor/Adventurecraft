@@ -350,24 +350,30 @@ body, html {
         framerate.snapshot();
     }
 
+    function createObject(args)
+    {
+        return {
+            translation: 'translation' in args ? args.translation : [0,0,0],
+            translationVelocity: 'translationVelocity' in args ? args.translationVelocity : [0,0,0],
+            preRotation: 'preRotation' in args ? args.preRotation : [0,0,0],
+            preRotationVelocity: 'preRotationVelocity' in args ? args.preRotationVelocity : [0,0,0],
+            postRotation: 'postRotation' in args ? args.postRotation : [0,0,0],
+            postRotationVelocity: 'postRotationVelocity' in args ? args.postRotationVelocity : [0,0,0],
+            radius: 'radius' in args ? args.radius : 1,
+            shape: 'shape' in args ? args.shape : 'sphere',
+            children: 'children' in args ? args.children : []
+        };
+    }
+
     function loadContent(gl)
     {
-        var objects = [];
-        objects.push(
-        {
-            translation: [0,0,0], translationVelocity: [0,0,0], 
-            preRotation: [0,0,0], preRotationVelocity: [0,0,0],
-            postRotation: [0,0,0], postRotationVelocity: [0,0,1], 
-            radius: 3, shape: 'sphere', children: [
-                {
-                    translation: [5,0,0], translationVelocity: [0,0,0],
-                    preRotation: [0,0,0], preRotationVelocity: [0,0,2],
-                    postRotation: [0,0,0], postRotationVelocity: [3,5,7], 
-                    radius: 1, shape: 'box', children: []
-                }
-            ]
-        });
-        return objects;
+        return [createObject({
+            postRotationVelocity: [0,0,1], radius: 3, children: [
+                createObject({
+                    translation: [5,0,0], preRotationVelocity: [0,0,2], postRotationVelocity: [3,5,7], shape: 'box'
+                })
+            ]})
+        ];
     }
 
     function start()
