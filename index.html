@@ -239,7 +239,7 @@ body, html {
         g.matrixStack = [];
         g.perspectiveMatrix = new J3DIMatrix4();
         g.perspectiveMatrix.perspective(30, canvas.clientWidth / canvas.clientHeight, 1, 10000);
-        g.perspectiveMatrix.lookat(0,0,7, 0,0,0, 0,1,0);
+        g.perspectiveMatrix.lookat(0,0,25, 0,0,0, 0,1,0);
         g.totalRotation = [0, 0];
         g.position = [0, 0, 0];
         g.camera = new J3DIMatrix4();
@@ -247,6 +247,15 @@ body, html {
 
     function update(gameObject)
     {
+        gameObject.preRotation[0] += gameObject.preRotationVelocity[0];
+        gameObject.preRotation[1] += gameObject.preRotationVelocity[1];
+        gameObject.preRotation[2] += gameObject.preRotationVelocity[2];
+        gameObject.postRotation[0] += gameObject.postRotationVelocity[0];
+        gameObject.postRotation[1] += gameObject.postRotationVelocity[1];
+        gameObject.postRotation[2] += gameObject.postRotationVelocity[2];
+        gameObject.translation[0] += gameObject.translationVelocity[0];
+        gameObject.translation[1] += gameObject.translationVelocity[1];
+        gameObject.translation[2] += gameObject.translationVelocity[2];
         for (var i = 0; i < gameObject.children.length; i++) {
             update(gameObject.children[i]);
         }
@@ -261,7 +270,7 @@ body, html {
         mvMatrix.rotate(gameObject.preRotation[0], 1,0,0);
         mvMatrix.rotate(gameObject.preRotation[1], 0,1,0);
         mvMatrix.rotate(gameObject.preRotation[2], 0,0,1);
-        mvMatrix.translate(gameObject.position);
+        mvMatrix.translate(gameObject.translation);
         mvMatrix.rotate(-gameObject.preRotation[0], 1,0,0);
         mvMatrix.rotate(-gameObject.preRotation[1], 0,1,0);
         mvMatrix.rotate(-gameObject.preRotation[2], 0,0,1);
@@ -346,8 +355,16 @@ body, html {
         var objects = [];
         objects.push(
         {
-            position: [0,0,0], preRotation: [0, 0, 180], postRotation: [0,0,0], radius: 3, shape: 'sphere', children: [
-                {position: [5,0,0], preRotation: [20, 20, 20], postRotation: [0,0,0], radius: 1, shape: 'box', children: []}
+            translation: [0,0,0], translationVelocity: [0,0,0], 
+            preRotation: [0,0,0], preRotationVelocity: [0,0,0],
+            postRotation: [0,0,0], postRotationVelocity: [0,0,1], 
+            radius: 3, shape: 'sphere', children: [
+                {
+                    translation: [5,0,0], translationVelocity: [0,0,0],
+                    preRotation: [0,0,0], preRotationVelocity: [0,0,2],
+                    postRotation: [0,0,0], postRotationVelocity: [3,5,7], 
+                    radius: 1, shape: 'box', children: []
+                }
             ]
         });
         return objects;
