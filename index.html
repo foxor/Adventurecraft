@@ -134,8 +134,12 @@ body, html {
         g.shapes['sphere'].dataType = gl.UNSIGNED_SHORT;
         g.shapes['sphere'].cullFace = gl.FRONT;
 
+        // Create a testures boject to hold our textures
+        g.textures = {}
+
         // Load an image to use. Returns a WebGLTexture object
-        spiritTexture = loadImageTexture(gl, "resources/spirit.jpg");
+        g.textures['spirit'] = loadImageTexture(gl, "resources/spirit.jpg");
+        g.textures['earth'] = loadImageTexture(gl, "resources/earthmap1k.jpg");
 
         // Create some matrices to use later and save their locations in the shaders
         g.u_normalMatrixLoc = gl.getUniformLocation(program, "u_normalMatrix");
@@ -317,7 +321,7 @@ body, html {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, myShape.indexObject);
 
         // Bind the texture to use
-        gl.bindTexture(gl.TEXTURE_2D, spiritTexture);
+        gl.bindTexture(gl.TEXTURE_2D, g.textures[gameObject.texture]);
         
         // Enable culling as specified by model
         gl.cullFace(myShape.cullFace);
@@ -361,14 +365,15 @@ body, html {
             postRotationVelocity: 'postRotationVelocity' in args ? args.postRotationVelocity : [0,0,0],
             radius: 'radius' in args ? args.radius : [1,1,1],
             shape: 'shape' in args ? args.shape : 'sphere',
-            children: 'children' in args ? args.children : []
+            children: 'children' in args ? args.children : [],
+            texture: 'texture' in args ? args.texture : 'spirit'
         };
     }
 
     function loadContent(gl)
     {
         return [createObject({
-            postRotationVelocity: [0,0,1], radius: [3,1,1], children: [
+            postRotationVelocity: [0,0,1], radius: [3,1,1], texture: 'earth', children: [
                 createObject({
                     translation: [5,0,0], preRotationVelocity: [0,0,2], postRotationVelocity: [3,5,7], shape: 'box'
                 })
