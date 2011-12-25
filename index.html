@@ -141,6 +141,12 @@ body, html {
         g.textures['spirit'] = loadImageTexture(gl, "resources/spirit.jpg");
         g.textures['earth'] = loadImageTexture(gl, "resources/earthmap1k.jpg");
 
+        // Create an updates object to store update functions
+        g.updates = {}
+
+        // Load standard update functions
+        g.updates['inertia'] = inertia;
+
         // Create some matrices to use later and save their locations in the shaders
         g.u_normalMatrixLoc = gl.getUniformLocation(program, "u_normalMatrix");
         g.u_modelViewProjMatrixLoc =
@@ -249,7 +255,7 @@ body, html {
         g.camera = new J3DIMatrix4();
     }
 
-    function update(gameObject)
+    function inertia(gameObject)
     {
         gameObject.preRotation[0] += gameObject.preRotationVelocity[0];
         gameObject.preRotation[1] += gameObject.preRotationVelocity[1];
@@ -260,6 +266,11 @@ body, html {
         gameObject.translation[0] += gameObject.translationVelocity[0];
         gameObject.translation[1] += gameObject.translationVelocity[1];
         gameObject.translation[2] += gameObject.translationVelocity[2];
+    }
+
+    function update(gameObject)
+    {
+        g.updates[gameObject.updateType](gameObject);
         for (var i = 0; i < gameObject.children.length; i++) {
             update(gameObject.children[i]);
         }
@@ -366,7 +377,8 @@ body, html {
             radius: 'radius' in args ? args.radius : [1,1,1],
             shape: 'shape' in args ? args.shape : 'sphere',
             children: 'children' in args ? args.children : [],
-            texture: 'texture' in args ? args.texture : 'spirit'
+            texture: 'texture' in args ? args.texture : 'spirit',
+            updateType: 'updateType' in args ? args.updateType : 'inertia'
         };
     }
 
