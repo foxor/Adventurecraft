@@ -306,9 +306,11 @@ body, html {
         }
 
         // Do our own axis rotation
+        mvMatrix.translate(-gameObject.rotationCenter[0], -gameObject.rotationCenter[1], -gameObject.rotationCenter[2]);
         mvMatrix.rotate(gameObject.postRotation[0], 1,0,0);
         mvMatrix.rotate(gameObject.postRotation[1], 0,1,0);
         mvMatrix.rotate(gameObject.postRotation[2], 0,0,1);
+        mvMatrix.translate(gameObject.rotationCenter[0], gameObject.rotationCenter[1], gameObject.rotationCenter[2]);
 
         // Construct the normal matrix from the model-view matrix and pass it in
         var normalMatrix = new J3DIMatrix4(mvMatrix);
@@ -385,6 +387,7 @@ body, html {
             preRotationVelocity: 'preRotationVelocity' in args ? args.preRotationVelocity : [0,0,0],
             postRotation: 'postRotation' in args ? args.postRotation : [0,0,0],
             postRotationVelocity: 'postRotationVelocity' in args ? args.postRotationVelocity : [0,0,0],
+            rotationCenter: 'rotationCenter' in args ? args.rotationCenter : [0,0,0],
             radius: 'radius' in args ? args.radius : [1,1,1],
             shape: 'shape' in args ? args.shape : 'sphere',
             children: 'children' in args ? args.children : [],
@@ -405,14 +408,23 @@ body, html {
 
     function loadContent(gl)
     {
-        return [createObject({
-            postRotationVelocity: [0,0,1], radius: [3,1,1], texture: 'earth', children: [
-                createTimedObject({
-                    translation: [5,0,0], preRotationVelocity: [0,0,2], postRotationVelocity: [3,5,7], shape: 'box',
-                    timedUpdate: function (t) {
-                        this.preRotationVelocity = t % 100 > 50 ? [0,0,-2] : [0,0,2];
+        return [createObject({radius: [1,3,1], children: [ // TORSO
+                createObject({radius: [1,1,1], translation: [0,3.5,0]}), // HEAD
+                createTimedObject({radius: [0.5,1.5,0.5], translation: [1,3,0], postRotationVelocity: [1,0,0], rotationCenter: [0,1,0], timedUpdate: function(t) {
+                    if (t % 170 < 10) {
+                        this.postRotation = [0,0,0];
+                    } else if (t % 170 < 100) {
+                        this.postRotationVelocity = [1,0,0];
+                    } else {
+                        this.postRotationVelocity = [-1,0,0];
                     }
-                })
+                }}), //LARM
+                createObject({radius: [0.5,1.5,0.5], translation: [-1,3,0], postRotationVelocity: [1,0,0], rotationCenter: [0,1,0]
+                }), //RARM
+                createObject({radius: [0.5,1.5,0.5], translation: [1,-1.5,0], postRotationVelocity: [1,0,0], rotationCenter: [0,1,0]
+                }), //LARM
+                createObject({radius: [0.5,1.5,0.5], translation: [-1,-1.5,0], postRotationVelocity: [1,0,0], rotationCenter: [0,1,0]
+                }) //RARM
             ]})
         ];
     }
