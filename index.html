@@ -146,6 +146,7 @@ body, html {
 
         // Load standard update functions
         g.updates['inertia'] = inertia;
+        g.updates['timed'] = timed;
 
         // Create some matrices to use later and save their locations in the shaders
         g.u_normalMatrixLoc = gl.getUniformLocation(program, "u_normalMatrix");
@@ -268,6 +269,16 @@ body, html {
         gameObject.translation[2] += gameObject.translationVelocity[2];
     }
 
+    function timed(gameObject)
+    {
+        var t = gameObject.timer + 1;
+        gameObject.timedUpdate(t);
+        gameObject.timer = t;
+        if (gameObject.postTimerUpdate) {
+            g.updates[gameObject.postTimerUpdate](gameObject);
+        }
+    }
+
     function update(gameObject)
     {
         g.updates[gameObject.updateType](gameObject);
@@ -382,12 +393,25 @@ body, html {
         };
     }
 
+    function createTimedObject(args)
+    {
+        var r = createObject(args);
+        r['timedUpdate'] = 'timedUpdate' in args ? args['timedUpdate'] : function() {};
+        r['postTimerUpdate'] = 'postTimerUpdate' in args ? args['postTimerUpdate'] : 'inertia';
+        r['updateType'] = 'updateType' in args ? args['updateTy[e'] : 'timed';
+        r['timer'] = 'timer' in args ? args['timer'] : 0;
+        return r;
+    }
+
     function loadContent(gl)
     {
         return [createObject({
             postRotationVelocity: [0,0,1], radius: [3,1,1], texture: 'earth', children: [
-                createObject({
-                    translation: [5,0,0], preRotationVelocity: [0,0,2], postRotationVelocity: [3,5,7], shape: 'box'
+                createTimedObject({
+                    translation: [5,0,0], preRotationVelocity: [0,0,2], postRotationVelocity: [3,5,7], shape: 'box',
+                    timedUpdate: function (t) {
+                        this.preRotationVelocity = t % 100 > 50 ? [0,0,-2] : [0,0,2];
+                    }
                 })
             ]})
         ];
