@@ -267,9 +267,6 @@ body, html {
         gameObject.translation[0] += gameObject.translationVelocity[0];
         gameObject.translation[1] += gameObject.translationVelocity[1];
         gameObject.translation[2] += gameObject.translationVelocity[2];
-        gameObject.modelRotation[0] += gameObject.modelRotationVelocity[0];
-        gameObject.modelRotation[1] += gameObject.modelRotationVelocity[1];
-        gameObject.modelRotation[2] += gameObject.modelRotationVelocity[2];
     }
 
     function timed(gameObject)
@@ -306,24 +303,17 @@ body, html {
         mvMatrix.rotate(-gameObject.preRotation[1], 0,1,0);
         mvMatrix.rotate(-gameObject.preRotation[2], 0,0,1);
 
-        // Do our model rotation, for ourselves and our children
+        // Do our model rotation
         mvMatrix.translate(-gameObject.rotationCenter[0], -gameObject.rotationCenter[1], -gameObject.rotationCenter[2]);
-        mvMatrix.rotate(gameObject.modelRotation[0], 1,0,0);
-        mvMatrix.rotate(gameObject.modelRotation[1], 0,1,0);
-        mvMatrix.rotate(gameObject.modelRotation[2], 0,0,1);
+        mvMatrix.rotate(gameObject.postRotation[0], 1,0,0);
+        mvMatrix.rotate(gameObject.postRotation[1], 0,1,0);
+        mvMatrix.rotate(gameObject.postRotation[2], 0,0,1);
         mvMatrix.translate(gameObject.rotationCenter[0], gameObject.rotationCenter[1], gameObject.rotationCenter[2]);
 
         // Let our kids draw themselves
         for (var i = 0; i < gameObject.children.length; i++) {
             draw(gl, gameObject.children[i], mvMatrix);
         }
-
-        // Do our own axis rotation
-        mvMatrix.translate(-gameObject.rotationCenter[0], -gameObject.rotationCenter[1], -gameObject.rotationCenter[2]);
-        mvMatrix.rotate(gameObject.postRotation[0], 1,0,0);
-        mvMatrix.rotate(gameObject.postRotation[1], 0,1,0);
-        mvMatrix.rotate(gameObject.postRotation[2], 0,0,1);
-        mvMatrix.translate(gameObject.rotationCenter[0], gameObject.rotationCenter[1], gameObject.rotationCenter[2]);
 
         // Construct the normal matrix from the model-view matrix and pass it in
         var normalMatrix = new J3DIMatrix4(mvMatrix);
@@ -400,8 +390,6 @@ body, html {
             preRotationVelocity: 'preRotationVelocity' in args ? args.preRotationVelocity : [0,0,0],
             postRotation: 'postRotation' in args ? args.postRotation : [0,0,0],
             postRotationVelocity: 'postRotationVelocity' in args ? args.postRotationVelocity : [0,0,0],
-            modelRotation: 'modelRotation' in args ? args.modelRotation : [0,0,0],
-            modelRotationVelocity: 'modelRotationVelocity' in args ? args.modelRotationVelocity : [0,0,0],
             rotationCenter: 'rotationCenter' in args ? args.rotationCenter : [0,0,0],
             radius: 'radius' in args ? args.radius : [1,1,1],
             shape: 'shape' in args ? args.shape : 'sphere',
@@ -424,41 +412,38 @@ body, html {
     function loadContent()
     {
         var SPEED_DIV = 20;
-        return [createObject({radius: [1,3,1], translationVelocity: [0,0,0], modelRotation: [0,90,0], children: [ // TORSO
-                createObject({radius: [1,1,1], translation: [0,3.5,0]}), // HEAD
-                createTimedObject({radius: [0.5,1.5,0.5], translation: [1,3,0], rotationCenter: [0,1,0], timedUpdate: function(t) {
-                    this.postRotation[0] = 180 + Math.sin(t / SPEED_DIV) * 30;
-                    this.children[0].preRotation[0] = this.postRotation[0];
-                    this.children[0].postRotation[0] = this.postRotation[0] - 90;
-                }, postTimedUpdate: false, children: [
-                    createObject({radius: [0.5,1.5,0.5], translation: [0,2,0], rotationCenter: [0,1,0], postRotation:  [90,0,0]})
-                ]}), //LARM
-                createTimedObject({radius: [0.5,1.5,0.5], translation: [-1,3,0], rotationCenter: [0,1,0], timedUpdate: function(t) {
-                    this.postRotation[0] = 180 + Math.sin(t / SPEED_DIV + Math.PI) * 30;
-                    this.children[0].preRotation[0] = this.postRotation[0];
-                    this.children[0].postRotation[0] = this.postRotation[0] - 90;
-                }, postTimedUpdate: false, children: [
-                    createObject({radius: [0.5,1.5,0.5], translation: [0,2,0], rotationCenter: [0,1,0], postRotation:  [90,0,0]})
-                ]}), //RARM
-                createTimedObject({radius: [0.5,1.5,0.5], translation: [1,-1.5,0], rotationCenter: [0,1,0], timedUpdate: function(t) {
-                    this.modelRotation[0] = 160 + Math.sin(t / SPEED_DIV + Math.PI) * 70;
-                }, postTimedUpdate: false, children: [
-                    createTimedObject({radius: [0.5,1.5,0.5], translation: [0,2,0], rotationCenter: [0,1,0], timedUpdate: function(t) {
-                        this.modelRotation[0] = 50 - Math.sin(t / SPEED_DIV + Math.PI) * 40;
-                    }, children: [
-                        createObject({radius: [0.5,0.5,1], translation: [0,1,-0.5]})
-                    ]})
-                ]}), //RLEG
-                createTimedObject({radius: [0.5,1.5,0.5], translation: [-1,-1.5,0], rotationCenter: [0,1,0], timedUpdate: function(t) {
-                    this.modelRotation[0] = 160 + Math.sin(t / SPEED_DIV) * 70;
-                }, postTimedUpdate: false, children: [
-                    createTimedObject({radius: [0.5,1.5,0.5], translation: [0,2,0], rotationCenter: [0,1,0], timedUpdate: function(t) {
-                        this.modelRotation[0] = 50 - Math.sin(t / SPEED_DIV) * 40;
-                    }, children: [
-                        createObject({radius: [0.5,0.5,1], translation: [0,1,-0.5]})
-                    ]})
-                ]}) //LLEG
-            ]})
+        return [createObject({radius: [1,3,1], translationVelocity: [0,0,0], postRotation: [0,90,0], children: [ // TORSO
+                    createObject({radius: [1,1,1], translation: [0,3.5,0]}), // HEAD
+                    createTimedObject({radius: [0.5,1.5,0.5], translation: [1,3,0], rotationCenter: [0,1,0], timedUpdate: function(t) {
+                        this.postRotation[0] = 180 + Math.sin(t / SPEED_DIV) * 30;
+                    }, postTimedUpdate: false, children: [
+                        createObject({radius: [0.5,1.5,0.5], translation: [0,2,0], rotationCenter: [0,1,0], postRotation:  [-90,0,0]})
+                    ]}), //LARM
+                    createTimedObject({radius: [0.5,1.5,0.5], translation: [-1,3,0], rotationCenter: [0,1,0], timedUpdate: function(t) {
+                        this.postRotation[0] = 180 + Math.sin(t / SPEED_DIV + Math.PI) * 30;
+                    }, postTimedUpdate: false, children: [
+                        createObject({radius: [0.5,1.5,0.5], translation: [0,2,0], rotationCenter: [0,1,0], postRotation:  [-90,0,0]})
+                    ]}), //RARM
+                    createTimedObject({radius: [0.5,1.5,0.5], translation: [1,-1.5,0], rotationCenter: [0,1,0], timedUpdate: function(t) {
+                        this.postRotation[0] = 160 + Math.sin(t / SPEED_DIV + Math.PI) * 70;
+                    }, postTimedUpdate: false, children: [
+                        createTimedObject({radius: [0.5,1.5,0.5], translation: [0,2,0], rotationCenter: [0,1,0], timedUpdate: function(t) {
+                            this.postRotation[0] = 50 - Math.sin(t / SPEED_DIV + Math.PI) * 40;
+                        }, children: [
+                            createObject({radius: [0.5,0.5,1], translation: [0,1,-0.5]})
+                        ]})
+                    ]}), //RLEG
+                    createTimedObject({radius: [0.5,1.5,0.5], translation: [-1,-1.5,0], rotationCenter: [0,1,0], timedUpdate: function(t) {
+                        this.postRotation[0] = 160 + Math.sin(t / SPEED_DIV) * 70;
+                    }, postTimedUpdate: false, children: [
+                        createTimedObject({radius: [0.5,1.5,0.5], translation: [0,2,0], rotationCenter: [0,1,0], timedUpdate: function(t) {
+                            this.postRotation[0] = 50 - Math.sin(t / SPEED_DIV) * 40;
+                        }, children: [
+                            createObject({radius: [0.5,0.5,1], translation: [0,1,-0.5]})
+                        ]})
+                    ]}) //LLEG
+                ]
+            })
         ];
     }
 
