@@ -421,7 +421,7 @@ body, html {
         return r;
     }
 
-    function loadContent(gl)
+    function loadContent()
     {
         var SPEED_DIV = 20;
         return [createObject({radius: [1,3,1], translationVelocity: [0,0,0], modelRotation: [0,90,0], children: [ // TORSO
@@ -478,7 +478,7 @@ body, html {
            return;
         }
 
-        var objects = loadContent(gl);
+        var objects = loadContent();
 
         framerate = new Framerate("framerate");
         var f = function() {
