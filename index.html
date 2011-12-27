@@ -297,11 +297,6 @@ body, html {
         // Make a model/view matrix.
         var mvMatrix = new J3DIMatrix4(parentMvMatrix);
 
-        // Do our model rotation, for ourselves and our children
-        mvMatrix.rotate(gameObject.modelRotation[0], 1,0,0);
-        mvMatrix.rotate(gameObject.modelRotation[1], 0,1,0);
-        mvMatrix.rotate(gameObject.modelRotation[2], 0,0,1);
-
         // Do our translation away from our parent
         mvMatrix.rotate(gameObject.preRotation[0], 1,0,0);
         mvMatrix.rotate(gameObject.preRotation[1], 0,1,0);
@@ -310,6 +305,13 @@ body, html {
         mvMatrix.rotate(-gameObject.preRotation[0], 1,0,0);
         mvMatrix.rotate(-gameObject.preRotation[1], 0,1,0);
         mvMatrix.rotate(-gameObject.preRotation[2], 0,0,1);
+
+        // Do our model rotation, for ourselves and our children
+        mvMatrix.translate(-gameObject.rotationCenter[0], -gameObject.rotationCenter[1], -gameObject.rotationCenter[2]);
+        mvMatrix.rotate(gameObject.modelRotation[0], 1,0,0);
+        mvMatrix.rotate(gameObject.modelRotation[1], 0,1,0);
+        mvMatrix.rotate(gameObject.modelRotation[2], 0,0,1);
+        mvMatrix.translate(gameObject.rotationCenter[0], gameObject.rotationCenter[1], gameObject.rotationCenter[2]);
 
         // Let our kids draw themselves
         for (var i = 0; i < gameObject.children.length; i++) {
@@ -422,7 +424,7 @@ body, html {
     function loadContent(gl)
     {
         var SPEED_DIV = 20;
-        return [createObject({radius: [1,3,1], translationVelocity: [0,0,SPEED_DIV / 100], modelRotation: [0,90,0], children: [ // TORSO
+        return [createObject({radius: [1,3,1], translationVelocity: [0,0,0], modelRotation: [0,90,0], children: [ // TORSO
                 createObject({radius: [1,1,1], translation: [0,3.5,0]}), // HEAD
                 createTimedObject({radius: [0.5,1.5,0.5], translation: [1,3,0], rotationCenter: [0,1,0], timedUpdate: function(t) {
                     this.postRotation[0] = 180 + Math.sin(t / SPEED_DIV) * 30;
@@ -439,20 +441,22 @@ body, html {
                     createObject({radius: [0.5,1.5,0.5], translation: [0,2,0], rotationCenter: [0,1,0], postRotation:  [90,0,0]})
                 ]}), //RARM
                 createTimedObject({radius: [0.5,1.5,0.5], translation: [1,-1.5,0], rotationCenter: [0,1,0], timedUpdate: function(t) {
-                    this.postRotation[0] = 160 + Math.sin(t / SPEED_DIV + Math.PI) * 70;
-                    this.children[0].preRotation[0] = this.postRotation[0];
+                    this.modelRotation[0] = 160 + Math.sin(t / SPEED_DIV + Math.PI) * 70;
                 }, postTimedUpdate: false, children: [
                     createTimedObject({radius: [0.5,1.5,0.5], translation: [0,2,0], rotationCenter: [0,1,0], timedUpdate: function(t) {
-                        this.postRotation[0] = 210 + Math.sin(t / SPEED_DIV + Math.PI) * 30;
-                    }})
+                        this.modelRotation[0] = 50 - Math.sin(t / SPEED_DIV + Math.PI) * 40;
+                    }, children: [
+                        createObject({radius: [0.5,0.5,1], translation: [0,1,-0.5]})
+                    ]})
                 ]}), //RLEG
                 createTimedObject({radius: [0.5,1.5,0.5], translation: [-1,-1.5,0], rotationCenter: [0,1,0], timedUpdate: function(t) {
-                    this.postRotation[0] = 160 + Math.sin(t / SPEED_DIV) * 70;
-                    this.children[0].preRotation[0] = this.postRotation[0];
+                    this.modelRotation[0] = 160 + Math.sin(t / SPEED_DIV) * 70;
                 }, postTimedUpdate: false, children: [
                     createTimedObject({radius: [0.5,1.5,0.5], translation: [0,2,0], rotationCenter: [0,1,0], timedUpdate: function(t) {
-                        this.postRotation[0] = 210 + Math.sin(t / SPEED_DIV) * 30;
-                    }})
+                        this.modelRotation[0] = 50 - Math.sin(t / SPEED_DIV) * 40;
+                    }, children: [
+                        createObject({radius: [0.5,0.5,1], translation: [0,1,-0.5]})
+                    ]})
                 ]}) //LLEG
             ]})
         ];
