@@ -53,6 +53,7 @@ body, html {
 <script type="text/javascript" src="resources/webgl-debug.js"></script>
 <script src="resources/J3DI.js"> </script>
 <script src="resources/J3DIMath.js" type="text/javascript"> </script>
+<script type="text/javascript" src="spiritbox.js"></script>
 <script id="vshader" type="x-shader/x-vertex">
     uniform mat4 u_modelViewProjMatrix;
     uniform mat4 u_normalMatrix;
@@ -140,6 +141,13 @@ body, html {
         // Load an image to use. Returns a WebGLTexture object
         g.textures['spirit'] = loadImageTexture(gl, "resources/spirit.jpg");
         g.textures['earth'] = loadImageTexture(gl, "resources/earthmap1k.jpg");
+
+        // Create an updates object to store update functions
+        g.updates = {}
+
+        // Load standard update functions
+        g.updates['inertia'] = inertia;
+        g.updates['timed'] = timed;
 
         // Create some matrices to use later and save their locations in the shaders
         g.u_normalMatrixLoc = gl.getUniformLocation(program, "u_normalMatrix");
@@ -243,13 +251,13 @@ body, html {
         g.matrixStack = [];
         g.perspectiveMatrix = new J3DIMatrix4();
         g.perspectiveMatrix.perspective(30, canvas.clientWidth / canvas.clientHeight, 1, 10000);
-        g.perspectiveMatrix.lookat(0,0,25, 0,0,0, 0,1,0);
+        g.perspectiveMatrix.lookat(0,0,0, 0,0,-1, 0,1,0);
         g.totalRotation = [0, 0];
-        g.position = [0, 0, 0];
+        g.position = [0, 0, -25];
         g.camera = new J3DIMatrix4();
     }
 
-    function update(gameObject)
+    function inertia(gameObject)
     {
         gameObject.preRotation[0] += gameObject.preRotationVelocity[0];
         gameObject.preRotation[1] += gameObject.preRotationVelocity[1];
@@ -260,6 +268,21 @@ body, html {
         gameObject.translation[0] += gameObject.translationVelocity[0];
         gameObject.translation[1] += gameObject.translationVelocity[1];
         gameObject.translation[2] += gameObject.translationVelocity[2];
+    }
+
+    function timed(gameObject)
+    {
+        var t = gameObject.timer + 1;
+        gameObject.timedUpdate(t);
+        gameObject.timer = t;
+        if (gameObject.postTimedUpdate) {
+            g.updates[gameObject.postTimedUpdate](gameObject);
+        }
+    }
+
+    function update(gameObject)
+    {
+        g.updates[gameObject.updateType](gameObject);
         for (var i = 0; i < gameObject.children.length; i++) {
             update(gameObject.children[i]);
         }
@@ -269,8 +292,11 @@ body, html {
     {
         var myShape = g.shapes[gameObject.shape];
 
+        // BEGIN MATRIX TRANSFORMATIONS
         // Make a model/view matrix.
         var mvMatrix = new J3DIMatrix4(parentMvMatrix);
+
+        // Do our translation away from our parent
         mvMatrix.rotate(gameObject.preRotation[0], 1,0,0);
         mvMatrix.rotate(gameObject.preRotation[1], 0,1,0);
         mvMatrix.rotate(gameObject.preRotation[2], 0,0,1);
@@ -279,14 +305,17 @@ body, html {
         mvMatrix.rotate(-gameObject.preRotation[1], 0,1,0);
         mvMatrix.rotate(-gameObject.preRotation[2], 0,0,1);
 
-        for (var i = 0; i < gameObject.children.length; i++) {
-            draw(gl, gameObject.children[i], mvMatrix);
-        }
-
-        // Do our own axis rotation
+        // Do our model rotation
+        mvMatrix.translate(-gameObject.rotationCenter[0], -gameObject.rotationCenter[1], -gameObject.rotationCenter[2]);
         mvMatrix.rotate(gameObject.postRotation[0], 1,0,0);
         mvMatrix.rotate(gameObject.postRotation[1], 0,1,0);
         mvMatrix.rotate(gameObject.postRotation[2], 0,0,1);
+        mvMatrix.translate(gameObject.rotationCenter[0], gameObject.rotationCenter[1], gameObject.rotationCenter[2]);
+
+        // Let our kids draw themselves
+        for (var i = 0; i < gameObject.children.length; i++) {
+            draw(gl, gameObject.children[i], mvMatrix);
+        }
 
         // Construct the normal matrix from the model-view matrix and pass it in
         var normalMatrix = new J3DIMatrix4(mvMatrix);
@@ -302,6 +331,7 @@ body, html {
         mvpMatrix.multiply(mvMatrix);
         mvpMatrix.setUniform(gl, g.u_modelViewProjMatrixLoc, false);
 
+        // BEGIN DRAWING
         // Enable all of the vertex attribute arrays.
         gl.enableVertexAttribArray(0);
         gl.enableVertexAttribArray(1);
@@ -356,38 +386,40 @@ body, html {
 
     function createObject(args)
     {
-        return {
-            translation: 'translation' in args ? args.translation : [0,0,0],
-            translationVelocity: 'translationVelocity' in args ? args.translationVelocity : [0,0,0],
-            preRotation: 'preRotation' in args ? args.preRotation : [0,0,0],
-            preRotationVelocity: 'preRotationVelocity' in args ? args.preRotationVelocity : [0,0,0],
-            postRotation: 'postRotation' in args ? args.postRotation : [0,0,0],
-            postRotationVelocity: 'postRotationVelocity' in args ? args.postRotationVelocity : [0,0,0],
-            radius: 'radius' in args ? args.radius : [1,1,1],
-            shape: 'shape' in args ? args.shape : 'sphere',
-            children: 'children' in args ? args.children : [],
-            texture: 'texture' in args ? args.texture : 'spirit'
-        };
+        args['translation'] = 'translation' in args ? args.translation : [0,0,0];
+        args['translationVelocity'] = 'translationVelocity' in args ? args.translationVelocity : [0,0,0];
+        args['preRotation'] = 'preRotation' in args ? args.preRotation : [0,0,0];
+        args['preRotationVelocity'] = 'preRotationVelocity' in args ? args.preRotationVelocity : [0,0,0];
+        args['postRotation'] = 'postRotation' in args ? args.postRotation : [0,0,0];
+        args['postRotationVelocity'] = 'postRotationVelocity' in args ? args.postRotationVelocity : [0,0,0];
+        args['rotationCenter'] = 'rotationCenter' in args ? args.rotationCenter : [0,0,0];
+        args['radius'] = 'radius' in args ? args.radius : [1,1,1];
+        args['shape'] = 'shape' in args ? args.shape : 'sphere';
+        args['children'] = 'children' in args ? args.children : [];
+        args['texture'] = 'texture' in args ? args.texture : 'spirit';
+        args['updateType'] = 'updateType' in args ? args.updateType : 'inertia';
+        return args;
     }
 
-    function loadContent(gl)
+    function createTimedObject(args)
     {
-        return [createObject({
-            postRotationVelocity: [0,0,1], radius: [3,1,1], texture: 'earth', children: [
-                createObject({
-                    translation: [5,0,0], preRotationVelocity: [0,0,2], postRotationVelocity: [3,5,7], shape: 'box'
-                })
-            ]})
-        ];
+        var updateType = 'updateType' in args ? args['updateType'] : 'timed';
+        var r = createObject(args);
+        r['timedUpdate'] = 'timedUpdate' in args ? args['timedUpdate'] : function() {};
+        r['postTimedUpdate'] = 'postTimedUpdate' in args ? args['postTimedUpdate'] : 'inertia';
+        r['updateType'] = updateType;
+        r['timer'] = 'timer' in args ? args['timer'] : 0;
+        return r;
+    }
+
+    function loadContent()
+    {
+        return drawDog();
     }
 
     function start()
     {
         var c = document.getElementById("example");
-
-        //c = WebGLDebugUtils.makeLostContextSimulatingCanvas(c);
-        // tell the simulator when to lose context.
-        //c.loseContextInNCalls(1);
 
         c.addEventListener('webglcontextlost', handleContextLost, false);
         c.addEventListener('webglcontextrestored', handleContextRestored, false);
@@ -397,7 +429,7 @@ body, html {
            return;
         }
 
-        var objects = loadContent(gl);
+        var objects = loadContent();
 
         framerate = new Framerate("framerate");
         var f = function() {
@@ -430,7 +462,7 @@ body, html {
 
 <body onload="start()">
 <canvas id="example">
-    If you're seeing this your web browser doesn't support the &lt;canvas>&gt; element. Ouch!
+    If you're seeing this your web browser doesn't support the &lt;canvas&gt; element. Ouch!
 </canvas>
 <div id="framerate"></div>
 </body>
