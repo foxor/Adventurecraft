@@ -385,28 +385,28 @@ body, html {
 
     function createObject(args)
     {
-        return {
-            translation: 'translation' in args ? args.translation : [0,0,0],
-            translationVelocity: 'translationVelocity' in args ? args.translationVelocity : [0,0,0],
-            preRotation: 'preRotation' in args ? args.preRotation : [0,0,0],
-            preRotationVelocity: 'preRotationVelocity' in args ? args.preRotationVelocity : [0,0,0],
-            postRotation: 'postRotation' in args ? args.postRotation : [0,0,0],
-            postRotationVelocity: 'postRotationVelocity' in args ? args.postRotationVelocity : [0,0,0],
-            rotationCenter: 'rotationCenter' in args ? args.rotationCenter : [0,0,0],
-            radius: 'radius' in args ? args.radius : [1,1,1],
-            shape: 'shape' in args ? args.shape : 'sphere',
-            children: 'children' in args ? args.children : [],
-            texture: 'texture' in args ? args.texture : 'spirit',
-            updateType: 'updateType' in args ? args.updateType : 'inertia'
-        };
+        args['translation'] = 'translation' in args ? args.translation : [0,0,0];
+        args['translationVelocity'] = 'translationVelocity' in args ? args.translationVelocity : [0,0,0];
+        args['preRotation'] = 'preRotation' in args ? args.preRotation : [0,0,0];
+        args['preRotationVelocity'] = 'preRotationVelocity' in args ? args.preRotationVelocity : [0,0,0];
+        args['postRotation'] = 'postRotation' in args ? args.postRotation : [0,0,0];
+        args['postRotationVelocity'] = 'postRotationVelocity' in args ? args.postRotationVelocity : [0,0,0];
+        args['rotationCenter'] = 'rotationCenter' in args ? args.rotationCenter : [0,0,0];
+        args['radius'] = 'radius' in args ? args.radius : [1,1,1];
+        args['shape'] = 'shape' in args ? args.shape : 'sphere';
+        args['children'] = 'children' in args ? args.children : [];
+        args['texture'] = 'texture' in args ? args.texture : 'spirit';
+        args['updateType'] = 'updateType' in args ? args.updateType : 'inertia';
+        return args;
     }
 
     function createTimedObject(args)
     {
+        var updateType = 'updateType' in args ? args['updateType'] : 'timed';
         var r = createObject(args);
         r['timedUpdate'] = 'timedUpdate' in args ? args['timedUpdate'] : function() {};
         r['postTimedUpdate'] = 'postTimedUpdate' in args ? args['postTimedUpdate'] : 'inertia';
-        r['updateType'] = 'updateType' in args ? args['updateTy[e'] : 'timed';
+        r['updateType'] = updateType;
         r['timer'] = 'timer' in args ? args['timer'] : 0;
         return r;
     }
