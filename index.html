@@ -291,6 +291,7 @@ body, html {
     {
         var myShape = g.shapes[gameObject.shape];
 
+        // BEGIN MATRIX TRANSFORMATIONS
         // Make a model/view matrix.
         var mvMatrix = new J3DIMatrix4(parentMvMatrix);
 
@@ -329,6 +330,7 @@ body, html {
         mvpMatrix.multiply(mvMatrix);
         mvpMatrix.setUniform(gl, g.u_modelViewProjMatrixLoc, false);
 
+        // BEGIN DRAWING
         // Enable all of the vertex attribute arrays.
         gl.enableVertexAttribArray(0);
         gl.enableVertexAttribArray(1);
@@ -450,10 +452,6 @@ body, html {
     function start()
     {
         var c = document.getElementById("example");
-
-        //c = WebGLDebugUtils.makeLostContextSimulatingCanvas(c);
-        // tell the simulator when to lose context.
-        //c.loseContextInNCalls(1);
 
         c.addEventListener('webglcontextlost', handleContextLost, false);
         c.addEventListener('webglcontextrestored', handleContextRestored, false);
