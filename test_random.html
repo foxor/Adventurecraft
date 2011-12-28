@@ -1,0 +1,25 @@
+<html>
+<head>
+<script type="text/javascript" src="random_field.js"></script>
+<script type="text/javascript">
+function draw() {
+    var width = 256;
+    var height = 256;
+    var d = random_field(width,width,64);
+    var canvas = document.getElementById('test')
+    var ctx = canvas.getContext('2d');
+    canvas.setAttribute('width', width * 4);
+    canvas.setAttribute('height', height * 4);
+    for (var x = 0; x < width; x++) {
+        for (var y = 0; y < width; y++) {
+            ctx.fillStyle = "rgb(" + ((d.get(x,y) & 48) << 2) + "," + ((d.get(x,y) & 12) << 4) + "," + ((d.get(x,y) & 3) << 6) + ")";
+            ctx.fillRect(x*4,y*4,4,4);
+        }
+    }
+}
+</script>
+</head>
+<body onload="draw()">
+<canvas id="test" width="128" height="128"></canvas>
+</body>
+</html>
