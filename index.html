@@ -135,6 +135,11 @@ body, html {
         g.shapes['sphere'].dataType = gl.UNSIGNED_SHORT;
         g.shapes['sphere'].cullFace = gl.FRONT;
 
+        // Load a donut shop
+        g.shapes['donut_shop'] = loadObj(gl, 'resources/pawn.obj');
+        g.shapes['donut_shop'].dataType = gl.UNSIGNED_SHORT;
+        g.shapes['donut_shop'].cullFace = gl.BACK;
+
         // Create a testures boject to hold our textures
         g.textures = {}
 
@@ -429,6 +434,7 @@ body, html {
 
     function loadContent()
     {
+        return [createObject({shape: 'donut_shop'})];
         var dog = drawDog()[0];
         var container = createContainer({});
         dog.translation = [3,0,0];
