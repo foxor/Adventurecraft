@@ -136,6 +136,11 @@ body, html {
         g.shapes['sphere'].dataType = gl.UNSIGNED_SHORT;
         g.shapes['sphere'].cullFace = gl.FRONT;
 
+        // Load a donut shop
+        g.shapes['donut_shop'] = loadObj(gl, 'resources/pawn.obj');
+        g.shapes['donut_shop'].dataType = gl.UNSIGNED_SHORT;
+        g.shapes['donut_shop'].cullFace = gl.BACK;
+
         // Create a testures boject to hold our textures
         g.textures = {}
 
@@ -255,7 +260,7 @@ body, html {
         g.perspectiveMatrix.perspective(30, canvas.clientWidth / canvas.clientHeight, 1, 10000);
         g.perspectiveMatrix.lookat(0,0,0, 0,0,-1, 0,1,0);
         g.totalRotation = [0, 0];
-        g.position = [0, 0, -100];
+        g.position = [0, -50, -100];
         g.camera = new J3DIMatrix4();
     }
 
@@ -434,14 +439,19 @@ body, html {
         var height = 128;
         var d = random_field(width, height, 64);
         var r = [];
+        var last_donut_shop = null;
         for (var x = 0; x < width; x++) {
             for (var y = 0; y < height; y++) {
-                if (d.get(x,y) > 25) {
+                if (d.get(x,y) < -22) {
+                    last_donut_shop = createObject({shape: 'donut_shop', translation: [x, 0, y]});
+                    r.push(last_donut_shop);
+                }
+                if (d.get(x,y) > 22 && last_donut_shop) {
                     var positionContainer = createContainer({translation: [x, 0, y], children: drawMan()});
                     var human = positionContainer.children[0];
-                    human.preRotation = [0, Math.random() * 360, 0];
+                    human.preRotation = [0, Math.atan((last_donut_shop.translation[0] - x) / (last_donut_shop.translation[2] - y)) / Math.PI * 180, 0];
                     human.postRotation = human.preRotation;
-                    human.translationVelocity = [0, 0, 0.05];
+                    human.translationVelocity = [0, 0, 0.15];
                     r.push(positionContainer);
                 }
             }
