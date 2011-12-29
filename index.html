@@ -255,7 +255,7 @@ body, html {
         g.perspectiveMatrix.perspective(30, canvas.clientWidth / canvas.clientHeight, 1, 10000);
         g.perspectiveMatrix.lookat(0,0,0, 0,0,-1, 0,1,0);
         g.totalRotation = [0, 0];
-        g.position = [0, 0, -25];
+        g.position = [0, 0, -100];
         g.camera = new J3DIMatrix4();
     }
 
@@ -437,11 +437,12 @@ body, html {
         for (var x = 0; x < width; x++) {
             for (var y = 0; y < height; y++) {
                 if (d.get(x,y) > 25) {
-                    var human = drawMan()[0];
+                    var positionContainer = createContainer({translation: [x, 0, y], children: drawMan()});
+                    var human = positionContainer.children[0];
                     human.preRotation = [0, Math.random() * 360, 0];
                     human.postRotation = human.preRotation;
                     human.translationVelocity = [0, 0, 0.05];
-                    r.push(human);
+                    r.push(positionContainer);
                 }
             }
         }
