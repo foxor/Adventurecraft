@@ -54,6 +54,7 @@ body, html {
 <script src="resources/J3DI.js"> </script>
 <script src="resources/J3DIMath.js" type="text/javascript"> </script>
 <script type="text/javascript" src="running_man.js"></script>
+<script type="text/javascript" src="random_field.js"></script>
 <script id="vshader" type="x-shader/x-vertex">
     uniform mat4 u_modelViewProjMatrix;
     uniform mat4 u_normalMatrix;
@@ -414,7 +415,22 @@ body, html {
 
     function loadContent()
     {
-        return drawMan();
+        var width = 128;
+        var height = 128;
+        var d = random_field(width, height, 64);
+        var r = [];
+        for (var x = 0; x < width; x++) {
+            for (var y = 0; y < height; y++) {
+                if (d.get(x,y) > 25) {
+                    var human = drawMan()[0];
+                    human.preRotation = [0, Math.random() * 360, 0];
+                    human.postRotation = human.preRotation;
+                    human.translationVelocity = [0, 0, 0.05];
+                    r.push(human);
+                }
+            }
+        }
+        return r;
     }
 
     function start()
