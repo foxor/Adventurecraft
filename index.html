@@ -149,6 +149,7 @@ body, html {
         // Load standard update functions
         g.updates['inertia'] = inertia;
         g.updates['timed'] = timed;
+        g.updates['none'] = function(){};
 
         // Create some matrices to use later and save their locations in the shaders
         g.u_normalMatrixLoc = gl.getUniformLocation(program, "u_normalMatrix");
@@ -291,8 +292,6 @@ body, html {
 
     function draw(gl, gameObject, parentMvMatrix)
     {
-        var myShape = g.shapes[gameObject.shape];
-
         // BEGIN MATRIX TRANSFORMATIONS
         // Make a model/view matrix.
         var mvMatrix = new J3DIMatrix4(parentMvMatrix);
@@ -318,6 +317,11 @@ body, html {
             draw(gl, gameObject.children[i], mvMatrix);
         }
 
+        // Early out if we aren't visible
+        if (!gameObject.visible) {
+            return;
+        }
+
         // Construct the normal matrix from the model-view matrix and pass it in
         var normalMatrix = new J3DIMatrix4(mvMatrix);
         normalMatrix.invert();
@@ -331,6 +335,9 @@ body, html {
         var mvpMatrix = new J3DIMatrix4(g.perspectiveMatrix);
         mvpMatrix.multiply(mvMatrix);
         mvpMatrix.setUniform(gl, g.u_modelViewProjMatrixLoc, false);
+
+        // figure out who we are
+        var myShape = g.shapes[gameObject.shape];
 
         // BEGIN DRAWING
         // Enable all of the vertex attribute arrays.
@@ -399,6 +406,7 @@ body, html {
         args['children'] = 'children' in args ? args.children : [];
         args['texture'] = 'texture' in args ? args.texture : 'spirit';
         args['updateType'] = 'updateType' in args ? args.updateType : 'inertia';
+        args['visible'] = 'visible' in args ? args.visible : true;
         return args;
     }
 
@@ -411,6 +419,13 @@ body, html {
         r['updateType'] = updateType;
         r['timer'] = 'timer' in args ? args['timer'] : 0;
         return r;
+    }
+
+    function createContainer(args)
+    {
+        args.visible = false;
+        args.updateType = 'none';
+        return createObject(args);
     }
 
     function loadContent()
