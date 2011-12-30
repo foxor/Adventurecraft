@@ -570,6 +570,7 @@ Framerate = function(id)
 
     this.renderTime = -1;
     this.framerates = [ ];
+    this.trackdict = {};
     self = this;
     var fr = function() { self.updateFramerate() }
     setInterval(fr, this.framerateUpdateInterval);
@@ -581,9 +582,13 @@ Framerate.prototype.updateFramerate = function()
     for (var i = 0; i < this.framerates.length; ++i)
         tot += this.framerates[i];
 
-    var framerate = tot / this.framerates.length;
-    framerate = Math.round(framerate);
-    document.getElementById(this.id).innerHTML = "Framerate:"+framerate+"fps";
+    this.trackdict.Framerate = tot / this.framerates.length;
+    this.trackdict.Framerate = Math.round(this.trackdict.Framerate);
+    var html = "";
+    for (var x in this.trackdict) {
+        html += "<p>" + x + ": " + this.trackdict[x] + "</p>";
+    }
+    document.getElementById(this.id).innerHTML = html;
 }
 
 Framerate.prototype.snapshot = function()
@@ -600,5 +605,12 @@ Framerate.prototype.snapshot = function()
         while (this.framerates.length > this.numFramerates)
             this.framerates.shift();
         this.renderTime = newTime;
+    }
+}
+
+Framerate.prototype.update = function(args)
+{
+    for (var key in args) {
+        this.trackdict[key] = args[key];
     }
 }
