@@ -207,28 +207,29 @@ body, html {
     function onKeyDown(e)
     {
         var radians = [g.totalRotation[0] / 180 * Math.PI, g.totalRotation[1] / 180 * Math.PI];
+        var magnitude = Math.log(Math.max(dist - 1, 0) / Math.E);
         switch (e.keyCode) {
             case 87: // W
                 var dy = Math.sin(radians[1]);
                 var xzLen = Math.sqrt(1 - dy * dy);
-                g.position[0] -= Math.sin(radians[0]) * xzLen;
-                g.position[1] += Math.sin(radians[1]);
-                g.position[2] += Math.cos(radians[0]) * xzLen;
+                g.position[0] -= Math.sin(radians[0]) * xzLen * magnitude;
+                g.position[1] += Math.sin(radians[1]) * magnitude;
+                g.position[2] += Math.cos(radians[0]) * xzLen * magnitude;
                 break;
             case 65: // A
-                g.position[0] += Math.cos(radians[0]);
-                g.position[2] += Math.sin(radians[0]);
+                g.position[0] += Math.cos(radians[0]) * magnitude;
+                g.position[2] += Math.sin(radians[0]) * magnitude;
                 break;
             case 83: // S
                 var dy = Math.sin(radians[1]);
                 var xzLen = Math.sqrt(1 - dy * dy);
-                g.position[0] += Math.sin(radians[0]) * xzLen;
-                g.position[1] -= Math.sin(radians[1]);
-                g.position[2] -= Math.cos(radians[0]) * xzLen;
+                g.position[0] += Math.sin(radians[0]) * xzLen * magnitude;
+                g.position[1] -= Math.sin(radians[1]) * magnitude;
+                g.position[2] -= Math.cos(radians[0]) * xzLen * magnitude;
                 break;
             case 68: // D
-                g.position[0] -= Math.cos(radians[0]);
-                g.position[2] -= Math.sin(radians[0]);
+                g.position[0] -= Math.cos(radians[0]) * magnitude;
+                g.position[2] -= Math.sin(radians[0]) * magnitude;
                 break;
         }
     }
@@ -295,6 +296,11 @@ body, html {
         }
     }
 
+    function checkClosest(x,y,z)
+    {
+        dist = Math.min(Math.abs(x) + Math.abs(y) + Math.abs(z), dist);
+    }
+
     function draw(gl, gameObject, parentMvMatrix)
     {
         // BEGIN MATRIX TRANSFORMATIONS
@@ -321,6 +327,9 @@ body, html {
         for (var i = 0; i < gameObject.children.length; i++) {
             draw(gl, gameObject.children[i], mvMatrix);
         }
+
+        // Change how fast the camera moves
+        checkClosest(mvMatrix.$matrix.m41, mvMatrix.$matrix.m42, mvMatrix.$matrix.m43);
 
         // Early out if we aren't visible
         if (!gameObject.visible) {
@@ -375,6 +384,9 @@ body, html {
 
     function drawPicture(gl, objects)
     {
+        // Clear the minimum distance field
+        dist = 100000;
+
         // Make sure the canvas is sized correctly.
         reshape(gl);
 
