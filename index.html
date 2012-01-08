@@ -207,7 +207,7 @@ body, html {
     function onKeyDown(e)
     {
         var radians = [g.totalRotation[0] / 180 * Math.PI, g.totalRotation[1] / 180 * Math.PI];
-        var magnitude = Math.log(Math.max(dist - 1, 0) / Math.E);
+        var magnitude = Math.max(Math.log(Math.max(dist - 1, 0) / Math.E), 0.00001);
         switch (e.keyCode) {
             case 87: // W
                 var dy = Math.sin(radians[1]);
