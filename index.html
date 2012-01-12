@@ -256,10 +256,10 @@ body, html {
         gl.viewport(0, 0, canvas.clientWidth, canvas.clientHeight);
         g.matrixStack = [];
         g.perspectiveMatrix = new J3DIMatrix4();
-        g.perspectiveMatrix.perspective(30, canvas.clientWidth / canvas.clientHeight, 1, 10000);
+        g.perspectiveMatrix.orthoperspective(canvas.height, canvas.clientWidth / canvas.clientHeight, 1, 10000);
         g.perspectiveMatrix.lookat(0,0,0, 0,0,-1, 0,1,0);
         g.totalRotation = [0, 0];
-        g.position = [0, 0, -25];
+        g.position = [0, 0, -1000];
         g.camera = new J3DIMatrix4();
     }
 
@@ -434,11 +434,13 @@ body, html {
 
     function loadContent()
     {
+        var scale = 100;
         var dog = drawFlatDog()[0];
         var container = createContainer({});
-        dog.translation = [3,0,0];
+        dog.translation = [scale,0,0];
         dog.preRotationVelocity = [0,3,0];
-        container.translation = [3,0,0];
+        dog.radius = [scale,scale,scale];
+        container.translation = [scale,0,0];
         container.children = [dog];
         return [container];
     }

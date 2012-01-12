@@ -611,11 +611,11 @@ J3DIMatrix4.prototype.divide = function(divisor)
 J3DIMatrix4.prototype.ortho = function(left, right, bottom, top, near, far)
 {
     var tx = (left + right) / (left - right);
-    var ty = (top + bottom) / (top - bottom);
-    var tz = (far + near) / (far - near);
+    var ty = -(top + bottom) / (top - bottom);
+    var tz = -(far + near) / (far - near);
 
     var matrix = new J3DIMatrix4();
-    matrix.$matrix.m11 = 2 / (left - right);
+    matrix.$matrix.m11 = 2 / (right - left);
     matrix.$matrix.m12 = 0;
     matrix.$matrix.m13 = 0;
     matrix.$matrix.m14 = 0;
@@ -673,6 +673,15 @@ J3DIMatrix4.prototype.perspective = function(fovy, aspect, zNear, zFar)
     var left = aspect * bottom;
     var right = aspect * top;
     this.frustum(left, right, bottom, top, zNear, zFar);
+}
+
+J3DIMatrix4.prototype.orthoperspective = function(height, aspect, zNear, zFar)
+{
+    var top = height / 2;
+    var bottom = -top;
+    var left = aspect * bottom;
+    var right = aspect * top;
+    this.ortho(left, right, bottom, top, zNear, zFar);
 }
 
 J3DIMatrix4.prototype.lookat = function(eyex, eyey, eyez, centerx, centery, centerz, upx, upy, upz)
