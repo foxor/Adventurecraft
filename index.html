@@ -408,13 +408,16 @@ body, html {
 
     function loadContent()
     {
-        var dog = drawFlatDog()[0];
-        var container = createContainer({});
-        dog.translation = [3,0,0];
-        dog.preRotationVelocity = [0,3,0];
-        container.translation = [3,0,0];
-        container.children = [dog];
-        return [container];
+        var SIZE = 20;
+        var r = new Array(SIZE * SIZE);
+        for (var x = 0; x < SIZE; x++) {
+            for (var y = 0; y < SIZE; y++) {
+                var dog = drawFlatDog()[0];
+                dog.translation = [x-SIZE/2,0,y-SIZE/2];
+                r[x * SIZE + y] = dog;
+            }
+        }
+        return r;
     }
 
     function start()
